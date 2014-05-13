@@ -1,0 +1,16 @@
+Swirl Tutorial
+========================================================
+
+we will use swirl to learn R, for more information please goto: swirlstats.com
+
+```{r install swirl}
+install.packages("swirl")
+library(swirl)
+```
+
+start tutorial, make sure your working environment is clean:
+
+```{r load swirl}
+swirl()
+```
+
