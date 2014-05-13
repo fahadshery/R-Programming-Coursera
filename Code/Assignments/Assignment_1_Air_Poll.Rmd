@@ -21,3 +21,62 @@ For this programming assignment you will need to unzip this file and create the 
 
 ## Part 1
 
+Write a function named 'pollutantmean' that calculates the mean of a pollutant (sulfate or nitrate) across a specified list of monitors. The function 'pollutantmean' takes three arguments: 'directory', 'pollutant', and 'id'. Given a vector monitor ID numbers, 'pollutantmean' reads that monitors' particulate matter data from the directory specified in the 'directory' argument and returns the mean of the pollutant across all of the monitors, ignoring any missing values coded as NA. A prototype of the function is as follows:
+
+```{r prototype of Part 1}
+pollutantmean <- function(directory, pollutant, id = 1:332) {
+        ## 'directory' is a character vector of length 1 indicating
+        ## the location of the CSV files
+        
+        ## 'pollutant' is a character vector of length 1 indicating
+        ## the name of the pollutant for which we will calculate the
+        ## mean; either "sulfate" or "nitrate".
+        
+        ## 'id' is an integer vector indicating the monitor ID numbers
+        ## to be used
+        
+        ## Return the mean of the pollutant across all monitors list
+        ## in the 'id' vector (ignoring NA values)
+        }
+
+```
+
+The output should look like:
+
+```{r part 1 output}
+
+source("pollutantmean.R")
+pollutantmean("specdata", "sulfate", 1:10)
+
+## [1] 4.064
+
+pollutantmean("specdata", "nitrate", 70:72)
+
+## [1] 1.706
+
+pollutantmean("specdata", "nitrate", 23)
+
+## [1] 1.281
+
+
+```
+
+```{r simple function}
+
+path = "C:/Users/607518069/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata"
+fileList = list.files(path=path,pattern="\\.csv$",full.names=T)
+all.files.data = lapply(fileList,read.csv,header=TRUE)
+str(all.the.data)
+DATA = do.call("rbind",all.files.data)
+summary(DATA)
+DATA$ID[1:10]
+mean(DATA$sulfate[DATA$ID[1:10]],na.rm=T)
+mean(DATA$sulfate[DATA$ID[DATA$ID==1:10]],na.rm=T)
+DATA$sulfate[DATA$ID[DATA$ID==1:10]]
+tapply(DATA$sulfate, DATA$ID,mean)
+DATA$sulfate[DATA$ID==1:10]
+DATA$ID[DATA$ID==1:10]
+dim(DATA)
+colMeans(DATA$sulfate[DATA$ID==23])
+apply(DATA,2,mean)
+```
