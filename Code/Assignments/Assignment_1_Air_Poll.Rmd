@@ -63,11 +63,25 @@ pollutantmean("specdata", "nitrate", 23)
 
 ```{r simple function}
 
-path = "C:/Users/607518069/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata"
+path = "C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata"
 fileList = list.files(path=path,pattern="\\.csv$",full.names=T)
+file.exists("C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata/001.csv")
+Examplecsv = read.csv("C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata/023.csv",header=T)
+str(Examplecsv)
+summary(Examplecsv)
+mean(Examplecsv$nitrate,na.rm=T)
+paste(c("A","B"),1:10,sep="")
 all.files.data = lapply(fileList,read.csv,header=TRUE)
 str(all.the.data)
 DATA = do.call("rbind",all.files.data)
+class(path)
+id = 1
+if(class(id)!="character"){
+        id = as.character(id)
+} else {
+        paste(path,"/" + id + ".csv", collapse="/")
+}
+
 summary(DATA)
 DATA$ID[1:10]
 mean(DATA$sulfate[DATA$ID[1:10]],na.rm=T)
