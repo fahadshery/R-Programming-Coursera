@@ -63,45 +63,34 @@ pollutantmean("specdata", "nitrate", 23)
 
 ```{r simple function}
 
-path = "C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata"
-fileList = list.files(path=path,pattern="*.csv",full.names=F)
-all.data.files = lapply(fileList,read.csv,header=TRUE)
+pollutantmean <- function(directory, pollutant, id = 1:332) {
+        
+        #set the path
+       path = "C:/Users/607518069/Documents/R Projects/Coursera/R-Programming-Coursera/Data/"
+        path = c(path,directory)
+        path = paste(path,collapse="")
+        #get the file List in that directory
+        fileList = list.files(path)
+        
+        #extract the file names and store as numeric for comparison
+        file.names = as.numeric(sub("\\.csv$","",fileList))
+        
+        #select files to be imported based on the user input or default
+        selected.files = fileList[match(id,file.names)]
+        
+        #import data
+        Data = lapply(file.path(path,selected.files),read.csv)
+        
+        #convert into data frame
+        Data = do.call(rbind.data.frame,Data)
+        
+        #calculate mean
+        mean(Data[,pollutant],na.rm=TRUE)
+        
+        }
 
-Data = sapply(fileList, function(file) {
-                                 read.csv(file=paste(path, file, sep="/"), header=T)
-                                 })
-str(Data)
-class(Data)
-str(all.data.files)
-class(all.data.files)
+pollutantmean("specdata","sulfate",1:10)
 
 
-file.exists("C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata/001.csv")
-Examplecsv = read.csv("C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata/023.csv",header=T)
-str(Examplecsv)
-summary(Examplecsv)
-mean(Examplecsv$nitrate,na.rm=T)
-paste(c("A","B"),1:10,sep="")
-
-str(all.the.data)
-DATA = do.call("rbind",all.files.data)
-class(path)
-id = 1
-if(class(id)!="character"){
-        id = as.character(id)
-} else {
-        paste(path,"/" + id + ".csv", collapse="/")
-}
-
-summary(DATA)
-DATA$ID[1:10]
-mean(DATA$sulfate[DATA$ID[1:10]],na.rm=T)
-mean(DATA$sulfate[DATA$ID[DATA$ID==1:10]],na.rm=T)
-DATA$sulfate[DATA$ID[DATA$ID==1:10]]
-tapply(DATA$sulfate, DATA$ID,mean)
-DATA$sulfate[DATA$ID==1:10]
-DATA$ID[DATA$ID==1:10]
-dim(DATA)
-colMeans(DATA$sulfate[DATA$ID==23])
-apply(DATA,2,mean)
 ```
+
