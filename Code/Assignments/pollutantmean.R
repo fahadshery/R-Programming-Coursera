@@ -1,7 +1,7 @@
 pollutantmean <- function(directory, pollutant, id = 1:332) {
         
         #set the path
-        path = "C:/Users/607518069/Documents/R Projects/Coursera/R-Programming-Coursera/Data/"
+        path = "C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/"
         path = c(path,directory)
         path = paste(path,collapse="")
         #get the file List in that directory

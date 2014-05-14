@@ -66,7 +66,7 @@ pollutantmean("specdata", "nitrate", 23)
 pollutantmean <- function(directory, pollutant, id = 1:332) {
         
         #set the path
-       path = "C:/Users/607518069/Documents/R Projects/Coursera/R-Programming-Coursera/Data/"
+       path = "C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/"
         path = c(path,directory)
         path = paste(path,collapse="")
         #get the file List in that directory
@@ -91,5 +91,34 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         
 pollutantmean("specdata","nitrate",70:72)
 
+path = "C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata"
+fileList = list.files(path)       
+file.names = as.numeric(sub("\\.csv$","",fileList))
+selected.files = fileList[match(1:10,file.names)]
+Data = lapply(file.path(path,selected.files),read.csv)
+class(Data)
+str(Data)
+res = lapply(Data, function(x) x[complete.cases(x),])
+res2 = data.frame(id = 1, nob=0)
+res2 = list()
+for(i in 1:length(res)){
+        res2$nob[i] <- nrow(res[[i]])
+        res2$id[i] <- i
+        res2[i] <- append(res2[i],res2[i],after=res2[i])
+}
+res2
+str(res2)
+nrow(res[[10]])
+append(1:5, 0:1, after = 3)
+append(1:5,after=)
+comp = Data[complete.cases(Data),]
+length(res)
+sum(!complete.cases(Data))
+str(res)
+class(res)
+bigdataframe = do.call(rbind, res)
+class(bigdataframe)
+resDataFrame = c(bigdataframe[bigdataframe$ID == 1],nrow(bigdataframe))
+append
 ```
 
