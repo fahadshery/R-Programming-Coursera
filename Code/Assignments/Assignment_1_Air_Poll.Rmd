@@ -100,7 +100,6 @@ class(Data)
 str(Data)
 res = lapply(Data, function(x) x[complete.cases(x),])
 res2 = data.frame(id = 1, nob=0)
-res2 = list()
 for(i in 1:length(res)){
         res2$nob[i] <- nrow(res[[i]])
         res2$id[i] <- i
