@@ -91,5 +91,21 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         
 pollutantmean("specdata","nitrate",70:72)
 
+path = "C:/Users/607518069/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata"
+fileList = list.files(path)
+file.names = as.numeric(sub("\\.csv$","",fileList))
+selected.files = fileList[match(1,file.names)]
+Data = lapply(file.path(path,selected.files),read.csv)
+str(Data)
+Data = do.call(rbind.data.frame,Data)
+res = complete.cases(Data)
+str(Data)
+summary(Data)
+myNA = is.na(Data)
+sum(myNA)
+res = nrow(Data) - sum(myNA)
+sub = subset(Data, !is.na(Data$sulfate)
+library(swirl)
+swirl()
 ```
 
