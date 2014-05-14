@@ -94,17 +94,20 @@ pollutantmean("specdata","nitrate",70:72)
 path = "C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/specdata"
 fileList = list.files(path)       
 file.names = as.numeric(sub("\\.csv$","",fileList))
-selected.files = fileList[match(1:10,file.names)]
+selected.files = fileList[match(30:25,file.names)]
 Data = lapply(file.path(path,selected.files),read.csv)
 class(Data)
 str(Data)
 res = lapply(Data, function(x) x[complete.cases(x),])
-res2 = data.frame(id = 1, nob=0)
+res2 = data.frame()
 for(i in 1:length(res)){
-        res2$nob[i] <- nrow(res[[i]])
-        res2$id[i] <- i
-        res2[i] <- append(res2[i],res2[i],after=res2[i])
+        res2 <- rbind(res2,c(id=i,nob=nrow(res[[i]])))
+       # res2 = rbind(res2,res2$id = i, res2$nob = nrow(res[[i]]))
+        #res2$nob[i] <- nrow(res[[i]])
+        #res2$id[i] <- i
+        #res2[i] <- append(res2[i],res2[i],after=res2[i])
 }
+colnames(res2) <- c("ID","nob")
 res2
 str(res2)
 nrow(res[[10]])
