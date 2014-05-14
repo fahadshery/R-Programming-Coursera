@@ -72,7 +72,7 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         #get the file List in that directory
         fileList = list.files(path)
         
-        #extract the file names and store as numeric for comparison
+        #stripping off the extension part and extract the file names 
         file.names = as.numeric(sub("\\.csv$","",fileList))
         
         #select files to be imported based on the user input or default
@@ -88,9 +88,8 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
         mean(Data[,pollutant],na.rm=TRUE)
         
         }
-
-pollutantmean("specdata","sulfate",1:10)
-
+        
+pollutantmean("specdata","nitrate",70:72)
 
 ```
 
