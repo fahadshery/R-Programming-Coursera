@@ -1,7 +1,7 @@
 complete <- function(directory, id = 1:332) {
         
         #set the path
-        path = "C:/Users/607518069/Documents/R Projects/Coursera/R-Programming-Coursera/Data/"
+        path = "C:/Users/Fahad/Documents/R Projects/Coursera/R-Programming-Coursera/Data/"
         path = c(path,directory)
         path = paste(path,collapse="")
         #get the file List in that directory
@@ -24,7 +24,7 @@ complete <- function(directory, id = 1:332) {
         
         #get the number of complete cases and put it in the result dataframe
         for(i in 1:length(completeCases)){
-                res <- rbind(res, nob=nrow(completeCases[[i]]))
+                res <- rbind(res, nobs=nrow(completeCases[[i]]))
         }
         
         #add ID column
@@ -34,14 +34,13 @@ complete <- function(directory, id = 1:332) {
         rownames(res) <- NULL
         
         #add column names
-        colnames(res) <- c("nob","id")
+        colnames(res) <- c("nobs","id")
         
         #re-arrange column names
-        res = res[c("id", "nob")]
+        res = res[c("id", "nobs")]
         
         #return the results dataframe
         res
-        
-}
 
+}
 
