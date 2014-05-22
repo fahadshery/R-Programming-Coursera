@@ -1,0 +1,84 @@
+Quize Week 3
+=============
+
+## Question 1
+Take a look at the 'iris' dataset that comes with R. The data can be loaded with the code:
+
+```{r load data}
+library(datasets)
+data(iris)
+```
+
+A description of the dataset can be found by running
+
+```{r help}
+?iris
+```
+
+There will be an object called 'iris' in your workspace. In this dataset, what is the mean of 'Sepal.Length' for the species virginica? (Please only enter the numeric result and nothing else.)
+
+```{r solution 1}
+class(iris)
+iris$Sepal.Length
+iris$Species
+tapply(iris$Sepal.Length, iris$Species, mean)
+```
+
+**ANS**: 6.588, To get the answer here, you can use 'tapply' to calculate the mean of 'Sepal.Length' within each species.
+
+## Question 2
+
+Continuing with the 'iris' dataset from the previous Question, what R code returns a vector of the means of the variables 'Sepal.Length', 'Sepal.Width', 'Petal.Length', and 'Petal.Width'?
+
+```{r Q2}
+str(iris)
+#retain columns
+apply(iris[, 1:4], 2, mean)
+#retain rows
+apply(iris[, 1:4], 1, mean)
+#column means
+colMeans(iris) #throws error: 'x' must be numeric and 'x' must be an array of at least two dimensions
+#
+apply(iris, 2, mean)
+
+```
+
+**ANS**: apply(iris[, 1:4], 2, mean)
+
+## Question 3
+
+Load the 'mtcars' dataset in R with the following code
+
+```{r Q3}
+library(datasets)
+data(mtcars)
+```
+There will be an object names 'mtcars' in your workspace. You can find some information about the dataset by running
+```{r Q3.1 help}
+?mtcars
+```
+How can one calculate the average miles per gallon (mpg) by number of cylinders in the car (cyl)?
+
+```{r Q3 solution}
+class(mtcars)
+tapply(mtcars$cyl, mtcars$mpg, mean) #it should be the other way around
+tapply(mtcars$mpg, mtcars$cyl, mean)
+with(mtcars, tapply(mpg, cyl, mean))
+
+lapply(mtcars, mean) #it will give the means of all the variables in the dataset
+split(mtcars, mtcars$cyl) #this will split based on number of cyl
+```
+
+**ANS**: with(mtcars, tapply(mpg, cyl, mean))
+
+## Question 4
+
+Continuing with the 'mtcars' dataset from the previous Question, what is the absolute difference between the average horsepower of 4-cylinder cars and the average horsepower of 8-cylinder cars?
+
+```{r Q4 solution}
+class(mtcars)
+spl = split(mtcars, mtcars$cyl) #this will split based on number of cyl
+str(spl)
+mapply(function(y) mean(y$hp), spl) #calculate mean on all subsets of the list on hp column 
+abs(82.63636-209.21429) #subtract the means of cyl 4 and cyl 8 
+```
