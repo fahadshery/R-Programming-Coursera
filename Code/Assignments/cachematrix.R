@@ -77,3 +77,18 @@ myMatrix = matrix(1:4,2,2)
 x = makeCacheMatrix(myMatrix)
 class(x)
 cacheSolve(x)
+
+## Test Cases
+
+Here is a template you can use to validate the functioning of your makeCachematrix() and cacheSolve() functions.
+
+amatrix = makeCacheMatrix(matrix(c(1,2,3,4), nrow=2, ncol=2))
+amatrix$get()         # Returns original matrix
+cacheSolve(amatrix)   # Computes, caches, and returns    matrix inverse
+amatrix$getInverse()  # Returns matrix inverse
+cacheSolve(amatrix)   # Returns cached matrix inverse using previously computed matrix inverse
+
+amatrix$set(matrix(c(0,5,99,66), nrow=2, ncol=2)) # Modify existing matrix
+cacheSolve(amatrix)   # Computes, caches, and returns new matrix inverse
+amatrix$get()         # Returns matrix
+amatrix$getInverse()  # Returns matrix inverse
