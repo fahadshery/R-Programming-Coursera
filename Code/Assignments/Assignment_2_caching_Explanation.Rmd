@@ -1,0 +1,406 @@
+Assignment 2 EXPLANATION
+========================================================
+
+In the previous iteration of this course, a lot of people seemed to struggle to understand exactly what is happening in the code provided in assignment 2. (Actually, you don't really need to fully understand everything in order to to do the assignment - you can simply copy and paste from the example code provided and then change a couple of lines for the new task. However, it does feel good to know exactly what you're doing!)
+
+I think that a big part of the problem is that there are several different things going on at once that may be tricky both to programmers new to R and to people new to programming in general. I think that paying close attention to the way functions are treated in R is really helpful in understanding the way R behaves.
+
+Here are a few explorations that I've kept from the first iteration of the course that treat some of the new concepts in assignment 2 individually that I hope others might find useful.
+
+## Part 1
+## The meaning of <<-
+
+> # In R, we use <- to create (or overwrite) a variable.
+> # An important thing to understand is that the variable only
+> # exists within the context in which it is created.
+> 
+> # We can think of this R session as a "parent" context.
+> 
+> aNewContext <- function() {
++   # Let's create a variable called myMessage
++   myMessage <- "Hello, world!"
++   myMessage
++ }
+> 
+> # aNewContext is a function that exists in the "parent"
+> # context. We can think of aNewContext as a "child" of
+> # the current R session.
+> 
+> aNewContext()
+[1] "Hello, world!"
+> 
+> # But if we try to access myMessage in the "parent" context,
+> # we run into a problem, because myMessage no longer exists...
+> 
+> myMessage
+Error: object 'myMessage' not found
+> 
+> # We can access other "children" from within a "child" context:
+> 
+> things <- 999
+> sing <- function(thing) sprintf("%d bottles of beer on the %s!", things, thing)
+> sing("wall")
+[1] "999 bottles of beer on the wall!"
+> 
+> # But if we try to change the value of other "children" from within
+> # a "child" context, we run into a problem:
+> 
+> decreaseThings <- function() things <- things - 1
+> decreaseThings()
+> sing("wall")
+[1] "999 bottles of beer on the wall!"
+> decreaseThings()
+> sing("wall")
+[1] "999 bottles of beer on the wall!"
+> 
+> # What went wrong? The line "things <- things - 1" actually created a
+> # new variable called things and set it to the old variable (which
+> # also happens to be called things) minus 1.
+> # And then, we didn't do anything with the new variable and it ceased
+> # to exist as soon as we left the function decreaseThings.
+> # Enter the <<- operator to refer to variables
+> # that already exist in some "parent" context...
+> 
+> decreaseThingsProperly <- function() things <<- things - 1
+> decreaseThingsProperly()
+> sing("wall")
+[1] "998 bottles of beer on the wall!"
+> decreaseThingsProperly()
+> sing("wall")
+[1] "997 bottles of beer on the wall!"
+> decreaseThingsProperly()
+> sing("WALL!!")
+[1] "996 bottles of beer on the WALL!!!"
+> decreaseThingsProperly()
+> sing("WAA-AALLL!")
+[1] "995 bottles of beer on the WAA-AALLL!!"
+> 
+> # Here's another example...
+> x <- 5
+> changeX <- function(newXValue) x <- newXValue
+> changeX(100)
+> x
+[1] 5
+> 
+> reallyChangeX <- function(newXValue) x <<- newXValue
+> reallyChangeX(100)
+> x
+[1] 100
+
+
+
+## Part 2
+## Functions as "first class objects"
+
+Functions are treated in the same way as other variables in R. Functions can take functions as arguments and functions can return functions (or lists of functions, which are explored in part 3).
+
+> # Functions can take functions as arguments and 
+> # functions can return functions in R.
+> 
+> # An example of a function that takes a function as an argument
+> hof <- function(f, x) cat(
++   sprintf("The value of y at x = %s is %s.\n", x, f(x))
++ )
+> # We can pass functions that already exist:
+> hof(sin, pi / 4)
+The value of y at x = 0.785398163397448 is 0.707106781186547.
+> # We can pass our own functions:
+> myFunction <- function(x) 100 * x
+> hof(myFunction, -5)
+The value of y at x = -5 is -500.
+> # We can pass functions anonymously:
+> hof(function(x) 2 * x, 10)
+The value of y at x = 10 is 20.
+> 
+> # An example of a function that returns a function
+> nTimes <- function(n) function(x) n * x
+> threeTimes = nTimes(3) # threeTimes is now a function of x that returns 3 * x
+> fourTimes = nTimes(4)  # fourTimes returns 4 * x
+> fiveTimes = nTimes(5)  # etc.
+> threeTimes(5)
+[1] 15
+> fourTimes(5)
+[1] 20
+> fiveTimes(5)
+[1] 25
+> # We can even write expressions like the following in R:
+> nTimes(10)(5) # nTimes(10) returns a function, then we pass 5 to that function
+[1] 50
+> 
+> # Lists of functions are often useful for grouping functions in a
+> # single object, and can be used to creating objects analagous to
+> # in some other languages. 
+> funcList = list(threeTimes, fourTimes, fiveTimes)
+> funcList[[1]](5)
+[1] 15
+> funcList[[2]](5)
+[1] 20
+> funcList[[3]](5)
+[1] 25
+> # (Though it's probably easier to read if we name the list members...)
+> funcListBetter = list(
++   threeTimes = threeTimes, 
++   fourTimes = fourTimes, 
++   fiveTimes = fiveTimes
++ )
+> funcListBetter$threeTimes(5)
+[1] 15
+> funcListBetter$fourTimes(5)
+[1] 20
+> funcListBetter$fiveTimes(5)
+[1] 25
+
+## Part 3
+## "Classes" as functions that return lists of "methods" and "properties"
+
+If you come from a background of object oriented programming, it may be helpful to think of the function given in assignment 2 as a class declaration. Here is an exploration of the idea:
+
+> # The elements in the list can be seen as class methods.
+> # Let's create a very simple "class" to represent a dog.
+> # A dog won't do much: bark when we tell it to, and 
+> # we can train it to bark a different number of times
+> # by swatting it with a newspaper...
+>
+> Dog <- function(name = "Fido", barkType = "Woof!") {
++   # Let's set up a "property" that contains a random number of 
++   # times the dog will bark when asked to...
++   noOfBarks <- numeric(1)
++   updateBarkNumber <- function() noOfBarks <<- sample(1:10, 1)
++   updateBarkNumber()
++   
++   # Let's create a "method" that may change the property noOfBarks...
++   f <- function() {
++     cat(c("YIP!\n", "Grr!\n", "YELP!\n", "Ouch!")[sample(1:4, 1)])
++     updateBarkNumber()
++   }
++   
++   # And a "method" to get the dog to bark...
++   g <- function() for (i in 1:noOfBarks) cat(sprintf("%s ", barkType))
++   
++   # The "properties" and "methods" that we'd like to be "public"
++   # are simply elements of a list that the function Dog returns; let's
++   # create the list and give the elements appropriate names...
++   list(name = name, swatWithNewspaper = f, bark = g)
++ }
+> 
+> # Now let's create some "instances" of Dog...
+> 
+> fido <- Dog()
+> snookums <- Dog(name = "Snookums", barkType = "Yap!")
+> fido$name
+[1] "Fido"
+> fido$bark()
+Woof! Woof! Woof! Woof! Woof! Woof! Woof! Woof! Woof! 
+> snookums$name
+[1] "Snookums"
+> snookums$bark()
+Yap! Yap! Yap! Yap! Yap! Yap! 
+> snookums$bark()
+Yap! Yap! Yap! Yap! Yap! Yap! 
+> snookums$swatWithNewspaper()
+Grr!
+> snookums$bark()
+Yap! Yap! Yap! Yap! Yap! 
+> snookums$bark()
+Yap! Yap! Yap! Yap! Yap! 
+> snookums$swatWithNewspaper()
+Ouch!
+> snookums$bark()
+Yap! Yap! 
+> fido$swatWithNewspaper()
+YIP!
+> fido$bark()
+Woof! Woof! Woof! Woof! Woof! Woof! Woof! 
+
+## Part 4
+## Going crazy: "classes" within "classes"
+
+We can even use the techniques above to create "classes" within "classes". I've capitalised names of functions that I'm treating as "classes" to easily distinguish them from functions I'm treating as "methods" of "instances".
+
+> # Let's create a "class" that represents a pack
+> # of cards form which we can draw random cards:
+> 
+> PackOfCards <- function() {
++   # A Card "class" within a PackOfCards "class"
++   Card <- function(x) {
++     # An "instance" of a Card is really just a list containing
++     # an integer x (named rawInteger, that we don't actually use
++     # in this example) as a "property" and a function 
++     # that maps x to an interpretation of a card (named showCard)
++     # as a "method"...
++     list(rawInteger = x, showCard = function() {
++       face <- c(
++         "Ace", "Two", "Three", "Four", "Five", "Six", "Seven",
++         "Eight", "Nine", "Ten", "Jack", "Queen", "King"
++       )[x %% 13 + 1]
++       suit <- c(
++         "Hearts", "Diamonds",
++         "Clubs", "Spades"
++       )[x %/% 13 %% 4 + 1]
++       cat(sprintf("%s of %s\n", face, suit))
++     })
++   }
++   
++   # Let's keep track of which cards are still in the pack.
++   cardInPack <- rep(1, 52)
++   
++   # A PackOfCards "instance" is then simply a list containing
++   # several "methods".
++   list(
++     cardsRemaining = function() sum(cardInPack), 
++     drawCard = function() {
++       if (sum(cardInPack) == 0) message("No more cards in the pack!")
++       else {
++         c <- numeric(1)
++         repeat {
++           c <- sample(1:52, 1)
++           if (cardInPack[c] == 1) break
++         }
++         cardInPack[c] <<- 0
++         # Create an "instance" of a Card and call its showCard "method"
++         card = Card(c)
++         card$showCard()
++       } 
++     }, 
++     showRemainingCards = function() for (i in 1:52) if (cardInPack[i]) Card(i)$showCard()
++   )
++ }
+> 
+> pack1 <- PackOfCards()
+> pack1$cardsRemaining()
+[1] 52
+> 
+> # Let's draw 40 cards from the deck
+> for (i in 1:40) pack1$drawCard()
+Ten of Spades
+King of Hearts
+Three of Hearts
+Five of Diamonds
+Two of Clubs
+Six of Clubs
+Ten of Diamonds
+Four of Diamonds
+Seven of Spades
+Jack of Diamonds
+Six of Spades
+Ace of Spades
+Ace of Hearts
+Five of Hearts
+Nine of Clubs
+Eight of Diamonds
+Jack of Clubs
+Eight of Clubs
+Four of Spades
+Eight of Hearts
+Two of Spades
+Three of Spades
+Six of Hearts
+Two of Diamonds
+Three of Diamonds
+Four of Clubs
+Nine of Hearts
+Ten of Clubs
+Jack of Spades
+Queen of Clubs
+Five of Spades
+Seven of Diamonds
+King of Diamonds
+King of Clubs
+Queen of Spades
+Two of Hearts
+Queen of Hearts
+Five of Clubs
+Three of Clubs
+Nine of Spades
+> pack1$cardsRemaining()
+[1] 12
+> pack1$showRemainingCards()
+Four of Hearts
+Seven of Hearts
+Ten of Hearts
+Jack of Hearts
+Ace of Diamonds
+Six of Diamonds
+Nine of Diamonds
+Queen of Diamonds
+Ace of Clubs
+Seven of Clubs
+Eight of Spades
+King of Spades
+
+
+As I said before, we don't need to go into this much detail in order to complete assignment 2, but I hope these explorations can help preempt many of the problems some people had with assignment 2 during the last iteration of the course! Hope they help (or at least provide some entertainment)!
+
+## Another explanation!
+
+Here are the sample functions from the assignment, with line numbers to make it easier to trace:
+
+01 makeVector <- function(x = numeric()) {
+02     # if an object is called without a method
+03     m <- NULL
+04     set <- function(y) {
+05         x <<- y
+06         m <<- NULL
+07     }
+08     get <- function() x
+09     setmean <- function(mean) m <<- mean
+10     getmean <- function() m
+11     list(set = set, get = get,
+12          setmean = setmean,
+13          getmean = getmean)
+14 }
+15
+16 cachemean <- function(x, ...) {
+17     m <- x$getmean()
+18     if(!is.null(m)) {
+19         message("getting cached data")
+20         return(m)
+21     }
+22     data <- x$get()
+23     m <- mean(data, ...)
+24     x$setmean(m)
+25     m
+26 }
+
+Michael's example starts with
+
+a <- makeVector()     #initialize
+
+This command creates an object named a and calls the makeVector() function to instantiate it. makeVector() takes a single argument (line 01): the mere fact that we're naming the argument x in the function definition instantiates (creates) the variable x in the object. If we included an argument when we called the function (i.e.: a <- makeVector(1:7)), the object a would get a vector x that contained numbers 1 through 7; since the argument in the function defaults to numeric(), if we don't pass an argument then x is created as an empty vector.
+
+When you call the function and don't reference any of the subfunctions (other languages might call these methods), it executes the code that is not in any of the subfunctions (line 03). In this case it sets m to NULL: m is cache for this particular object. So the result is that at the end of this command a is an object that contains an empty numeric vector, has an internal variable m which is set to NULL, and has four subfunctions that can be called to work on it (set(), get(), setmean(), and getmean())
+
+a       # shows that a is now a list of functions
+
+Typing this by itself now will give a list of the functions that will work on the a object.
+
+class(a)       # shows that a is a list
+class(a$set)   # shows that the elements of the list are functions
+
+These just show the class of the object a and of it's function set.
+
+a$set(c(1,2,3,4,5,6,7))     #set the vector
+
+Here's where it starts to actually do something. Here we are passing a vector c(1,2,3,4,5,6,7) to the set() subfunction (lines 04-07) of the a object. On line 5 it takes the vector and assigns stores it a variable named x; on line 6 it clears the cache (m).
+
+    As an aside, note that we're using the <<- super assignment operator in this subfunction: this allows the subfunction to alter the x and m variables in the parent environment, the makeVector() function itself. If we just used <- we would change x and m within the subfunction, but in the parent function they wouldn't change at all, leading to rage and aneurisms while trying to troubleshoot.
+
+a$get()        #get the vector
+
+The get() subfunction (line 08) grabs whatever vector might be stored in x and returns it.
+
+There are two other subfunctions in makeVector(). The first is is setmean(). If I were king I'd have named this savecache(), because that's all it does: it takes a vector passed into it and stores it in m, the cache. By that token, getmean() should be named getcache(), because all it does is return the cache.
+
+cachemean(a)   #calculate the mean
+
+Now we're calling the second function, and passing a into it. We start out by calling a's getmean() subfunction (line 17), which if you remember returns the contents of a's cache; we're placing that into a local variable m which, I believe, has no relation to the m in makeVector() and a.
+
+    Another aside: when we defined cachemean() we used an ellipsis (...) in the argument list. The ellipsis tells R that we reserve the right to pass in other arguments, but can't be bothered to actually name them. This would let us pass something extra to the mean() function (line 23), which has a matching ellipsis, if we wanted to. Here's an example of when it would actually be useful; in this case I don't see the point, but it doesn't hurt to leave them in.
+
+On line 18 we check to see if the returned cache has anything in it (!is.null(m)). If so, we print the "getting cached data" message (line 19) and return the cached vector (line 20).
+
+However, since this is our first time through the cache is empty, so we fall down to line 22. Here we use a's get() subfunction to get a's vector, and place it in a local variable data. We next get the mean of the vector in data and put it into local variable m (line 23). We store the mean into a's cache (line 24), and we return the mean to whomever called us in the first place (line 25).
+
+cachemean(a)   #when is called back use the cached mean
+
+We've calculated the mean once already, so it should be stored in a's cache. When we run the cachemean() function a second time it pulls the cache (line 17), and this time line 18 evaluates to TRUE, so we do lines 19 and 20 and we're outta there.
